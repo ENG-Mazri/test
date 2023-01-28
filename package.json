@@ -1,0 +1,431 @@
+{
+    "name": "ifc-vscode",
+    "displayName": "IFC Tools",
+    "description": "Tools for IFC files",
+    "version": "0.0.1",
+    "publisher": "cesium",
+    "license": "Apache-2.0",
+    "repository": {
+        "url": "https://github.com/AnalyticalGraphicsInc/gltf-vscode"
+    },
+    "keywords": [
+        "glTF",
+        "glb",
+        "Khronos",
+        "3D",
+        "model"
+    ],
+    "icon": "images/gltf.png",
+    "engines": {
+        "vscode": "^1.47.0"
+    },
+    "categories": [
+        "Formatters",
+        "Linters",
+        "Debuggers"
+    ],
+    "galleryBanner": {
+        "color": "#383838",
+        "theme": "dark"
+    },
+    "activationEvents": [
+        "onView:gltfOutline",
+        "onLanguage:json",
+        "onCommand:gltf.inspectData",
+        "onCommand:gltf.importUri",
+        "onCommand:gltf.exportUri",
+        "onCommand:gltf.previewModel",
+        "onCommand:gltf.validateFile",
+        "onCommand:gltf.exportGlbFile",
+        "onCommand:gltf.importGlbFile"
+    ],
+    "main": "./out/src/extension",
+    "contributes": {
+        "configuration": {
+            "title": "glTF configuration",
+            "properties": {
+                "glTF.defaultV1Engine": {
+                    "type": "string",
+                    "default": "Cesium",
+                    "enum": [
+                        "Babylon.js",
+                        "Cesium",
+                        "Filament",
+                        "Three.js"
+                    ],
+                    "description": "The default 3D engine that will be used when previewing a glTF 1.0 model.  You can always change the current engine within the preview pane."
+                },
+                "glTF.defaultV2Engine": {
+                    "type": "string",
+                    "default": "Three.js",
+                    "enum": [
+                        "Babylon.js",
+                        "Cesium",
+                        "Filament",
+                        "Three.js"
+                    ],
+                    "description": "The default 3D engine that will be used when previewing a glTF 2.0 model.  You can always change the current engine within the preview pane."
+                },
+                "glTF.Babylon.environment": {
+                    "type": "string",
+                    "default": "{extensionRootPath}environments/babylon/symmetrical_garden.env",
+                    "description": "The path to an HDR environment, or a BabylonJS-ready pre-filtered ENV or DDS environment file.  Pre-filtering gives quicker load performance, see: https://doc.babylonjs.com/how_to/use_hdr_environment"
+                },
+                "glTF.Filament.environment": {
+                    "type": "string",
+                    "default": "{extensionRootPath}environments/ktx/symmetrical_garden_ibl.ktx",
+                    "description": "The path to an HDR environment for use in Filament, processed into a KTX file by 'cmgen' (a tool bundled with Google Filament).  The name should end in '_ibl.ktx' and there should be a matching '_skybox.ktx' file alongside it."
+                },
+                "glTF.Three.environment": {
+                    "type": "string",
+                    "default": "{extensionRootPath}environments/hdr/symmetrical_garden_1k.hdr",
+                    "description": "The path to an HDR environment file for ThreeJS.  Note that if {face} appears in the name, a legacy non-HDR cube map texture will be used instead."
+                },
+                "glTF.showToolbar3D": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show a button on the toolbar to activate the 3D Preview window."
+                },
+                "glTF.alwaysOverwriteDefaultFilename": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When creating a filesystem file from glTF or GLB import or export should a prompt be shown to select the result filename?"
+                },
+                "glTF.expandOutlineWithSelection": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "When the editor selection changes the glTF outline will expand to include the current selection."
+                },
+                "glTF.Validation.enable": {
+                    "scope": "resource",
+                    "type": "boolean",
+                    "default": true,
+                    "description": "When true, automatically run the glTF Validator and report any found issues to the document problems window."
+                },
+                "glTF.Validation.debounce": {
+                    "scope": "resource",
+                    "type": "number",
+                    "default": 500,
+                    "description": "The number of milliseconds to wait for multiple requests to re-validate a glTF document."
+                },
+                "glTF.Validation.maxIssues": {
+                    "scope": "resource",
+                    "type": "number",
+                    "default": 200,
+                    "description": "Controls the maximum number of issues reported by the glTF Validator."
+                },
+                "glTF.Validation.ignoredIssues": {
+                    "scope": "resource",
+                    "type": "array",
+                    "default": [],
+                    "description": "Array of issue codes to ignore during validation.  See https://github.com/KhronosGroup/glTF-Validator/blob/master/ISSUES.md"
+                },
+                "glTF.Validation.severityOverrides": {
+                    "scope": "resource",
+                    "type": "object",
+                    "default": {},
+                    "description": "Override severity code of any glTF validation message by code.  See https://github.com/KhronosGroup/glTF-Validator/blob/master/ISSUES.md"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "gltf.inspectData",
+                "title": "glTF: Inspect Data"
+            },
+            {
+                "command": "gltf.importUri",
+                "title": "glTF: Import file as Data URI"
+            },
+            {
+                "command": "gltf.exportUri",
+                "title": "glTF: Export a Data URI to a file"
+            },
+            {
+                "command": "gltf.previewModel",
+                "title": "IFC: Preview 3D Model",
+                "icon": {
+                    "dark": "./resources/dark/cube.svg",
+                    "light": "./resources/light/cube.svg"
+                }
+            },
+            {
+                "command": "gltf.enableDebugMode",
+                "title": "glTF: Enable Debug Mode",
+                "icon": {
+                    "dark": "./resources/dark/debug-disabled.svg",
+                    "light": "./resources/light/debug-disabled.svg"
+                }
+            },
+            {
+                "command": "gltf.disableDebugMode",
+                "title": "glTF: Disable Debug Mode",
+                "icon": {
+                    "dark": "./resources/dark/debug-enabled.svg",
+                    "light": "./resources/light/debug-enabled.svg"
+                }
+            },
+            {
+                "command": "gltf.validateFile",
+                "title": "glTF: Validate a GLB or GLTF file"
+            },
+            {
+                "command": "gltf.exportGlbFile",
+                "title": "glTF: Export to GLB (Binary file)"
+            },
+            {
+                "command": "gltf.importGlbFile",
+                "title": "glTF: Import from GLB"
+            },
+            {
+                "command": "gltf.importAnimation",
+                "title": "glTF: Import animation"
+            },
+            {
+                "command": "gltf.exportAnimation",
+                "title": "glTF: Export animation"
+            },
+            {
+                "command": "gltf.declareExtension",
+                "title": "glTF Quick-Fix: Add Extension to 'extensionsUsed'"
+            },
+            {
+                "command": "gltf.addBufferViewTarget",
+                "title": "glTF Quick-Fix: Add a target to the bufferView based on attribute type"
+            },
+            {
+                "command": "gltf.addAllBufferViewTargets",
+                "title": "glTF Quick-Fix: Add all needed targets for all bufferViews in this file"
+            },
+            {
+                "command": "gltf.clearAnimationByteStride",
+                "title": "glTF Quick-Fix: Clear byteStride for this animation's bufferView"
+            },
+            {
+                "command": "gltf.clearAllAnimationByteStrides",
+                "title": "glTF Quick-Fix: Clear byteStrides for all animation bufferViews in this file"
+            },
+            {
+                "command": "gltf.clearUnusedJoints",
+                "title": "glTF Quick-Fix: Clear Joint IDs with zero weight"
+            },
+            {
+                "command": "gltfInspectData.copyAll",
+                "title": "glTF Inspect Data: Copy all values",
+                "shortTitle": "Copy All"
+            },
+            {
+                "command": "gltfInspectData.copy",
+                "title": "glTF Inspect Data: Copy current value",
+                "shortTitle": "Copy"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "gltf.inspectData",
+                "key": "alt+d",
+                "mac": "alt+d",
+                "when": "editorTextFocus && gltfFileActive"
+            },
+            {
+                "command": "gltf.previewModel",
+                "key": "alt+g",
+                "mac": "alt+g",
+                "when": "editorTextFocus && gltfFileActive"
+            },
+            {
+                "command": "gltf.exportGlbFile",
+                "key": "alt+shift+s e",
+                "mac": "alt+shift+s e",
+                "when": "editorTextFocus && gltfFileActive"
+            },
+            {
+                "command": "gltf.importAnimation",
+                "key": "alt+i",
+                "mac": "alt+i",
+                "when": "editorTextFocus && gltfFileActive"
+            },
+            {
+                "command": "gltf.exportAnimation",
+                "key": "alt+o",
+                "mac": "alt+o",
+                "when": "editorTextFocus && gltfFileActive"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "gltf.exportGlbFile",
+                    "when": "resourceExtname == .gltf",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.importGlbFile",
+                    "when": "resourceExtname == .glb",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.validateFile",
+                    "when": "resourceExtname == .gltf || resourceExtname == .glb",
+                    "group": "glTF"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "gltf.previewModel",
+                    "when": "gltfFileActive",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.inspectData",
+                    "when": "gltfFileActive",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.importUri",
+                    "when": "gltfFileActive",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.exportUri",
+                    "when": "gltfFileActive",
+                    "group": "glTF"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "gltf.previewModel",
+                    "when": "gltfFileActive && gltfShowToolbar3D",
+                    "group": "navigation"
+                },
+                {
+                    "command": "gltf.enableDebugMode",
+                    "when": "gltfPreviewActive && !gltfDebugActive",
+                    "group": "navigation"
+                },
+                {
+                    "command": "gltf.disableDebugMode",
+                    "when": "gltfPreviewActive && gltfDebugActive",
+                    "group": "navigation"
+                }
+            ],
+            "editor/title/context": [
+                {
+                    "command": "gltf.exportGlbFile",
+                    "when": "resourceExtname == .gltf",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.importGlbFile",
+                    "when": "resourceExtname == .glb",
+                    "group": "glTF"
+                },
+                {
+                    "command": "gltf.validateFile",
+                    "when": "resourceExtname == .gltf || resourceExtname == .glb",
+                    "group": "glTF"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "gltfInspectData.copyAll",
+                    "when": "view == gltfInspectData"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "gltfInspectData.copy",
+                    "when": "view == gltfInspectData"
+                },
+                {
+                    "command": "gltfInspectData.copyAll",
+                    "when": "view == gltfInspectData"
+                }
+            ]
+        },
+        "languages": [
+            {
+                "id": "json",
+                "extensions": [
+                    ".gltf"
+                ]
+            }
+        ],
+        "jsonValidation": [
+            {
+                "fileMatch": "*.gltf",
+                "url": "./schemas/glTF.chooser.schema.json"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "gltf",
+                    "title": "glTF",
+                    "icon": "resources/dark/tf-logo.svg"
+                }
+            ]
+        },
+        "views": {
+            "gltf": [
+                {
+                    "id": "gltfOutline",
+                    "name": "Outline",
+                    "when": "gltfActive"
+                },
+                {
+                    "id": "gltfInspectData",
+                    "name": "Inspect Data",
+                    "when": "gltfActive"
+                }
+            ]
+        }
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "postinstall": "cd server && npm install && cd .. && npm run fixThree",
+        "compile": "tsc -p ./tsconfig.json && cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+        "compile:client": "tsc -p ./tsconfig.json",
+        "watch:client": "tsc -w -p ./tsconfig.json",
+        "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+        "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
+        "fixThree": "node ./util/fixThree.js ./node_modules/three",
+        "build": "rollup -c ./rollup.config.js --bundleConfigAsCjs",
+        "dev": "rollup -w -c ./rollup.config.js"
+    },
+    "devDependencies": {
+        "@types/mocha": "^9.0.0",
+        "@types/node": "^14.0.23",
+        "@types/vscode": "^1.47.0",
+        "@typescript-eslint/eslint-plugin": "^3.6.1",
+        "@typescript-eslint/parser": "^3.6.1",
+        "ajv": "^8.6.3",
+        "eslint": "^7.5.0",
+        "eslint-plugin-html": "^6.0.2",
+        "mocha": "^9.1.3",
+        "rollup": "^3.12.0",
+        "typescript": "^4.4.4",
+        "yargs": "^17.2.1"
+    },
+    "dependencies": {
+        "@rollup/plugin-json": "^6.0.0",
+        "@rollup/plugin-node-resolve": "^15.0.1",
+        "babylonjs": "5.6.1",
+        "babylonjs-inspector": "5.6.1",
+        "babylonjs-loaders": "5.6.1",
+        "cesium": "^1.93.0",
+        "draco3dgltf": "1.5.2",
+        "filament": "^1.22.0",
+        "gltf-import-export": "1.0.19",
+        "gltf-validator": "2.0.0-dev.3.9",
+        "gltumble": "^1.0.1",
+        "json-source-map": "0.6.1",
+        "rollup-plugin-css-only": "^4.3.0",
+        "rollup-plugin-glslify": "^1.3.1",
+        "sprintf-js": "1.1.2",
+        "three": "^0.140.2",
+        "vscode-languageclient": "^5.2.1",
+        "web-ifc": "^0.0.36",
+        "web-ifc-three": "^0.0.121"
+    }
+}

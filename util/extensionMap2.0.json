@@ -1,0 +1,111 @@
+{
+    "glTF": {
+        "title": "Root Extensions",
+        "extensions": {
+            "KHR_lights_punctual": "glTF.KHR_lights_punctual.schema.json",
+            "KHR_materials_variants": "glTF.KHR_materials_variants.schema.json",
+            "KHR_techniques_webgl": "glTF.KHR_techniques_webgl.schema.json",
+            "KHR_xmp": "glTF.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "glTF.KHR_xmp_json_ld.schema.json",
+            "EXT_lights_image_based": "glTF.EXT_lights_image_based.schema.json",
+            "AGI_articulations": "gltf.AGI_articulations.schema.json",
+            "AGI_stk_metadata": "gltf.AGI_stk_metadata.schema.json"
+        }
+    },
+    "animation": {
+        "title": "Animation Extensions",
+        "extensions": {
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "asset": {
+        "title": "Asset Extensions",
+        "extensions": {
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "buffer": {
+        "title": "Buffer Extensions",
+        "extensions": {
+            "EXT_meshopt_compression": "buffer.EXT_meshopt_compression.schema.json"
+        }
+    },
+    "bufferView": {
+        "title": "Buffer View Extensions",
+        "extensions": {
+            "EXT_meshopt_compression": "bufferView.EXT_meshopt_compression.schema.json"
+        }
+    },
+    "image": {
+        "title": "Image Extensions",
+        "extensions": {
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "material": {
+        "title": "Material Extensions",
+        "extensions": {
+            "KHR_materials_clearcoat": "glTF.KHR_materials_clearcoat.schema.json",
+            "KHR_materials_emissive_strength": "glTF.KHR_materials_emissive_strength.schema.json",
+            "KHR_materials_ior": "glTF.KHR_materials_ior.schema.json",
+            "KHR_materials_iridescence": "glTF.KHR_materials_iridescence.schema.json",
+            "KHR_materials_pbrSpecularGlossiness": "glTF.KHR_materials_pbrSpecularGlossiness.schema.json",
+            "KHR_materials_sheen": "glTF.KHR_materials_sheen.schema.json",
+            "KHR_materials_specular": "glTF.KHR_materials_specular.schema.json",
+            "KHR_materials_transmission": "glTF.KHR_materials_transmission.schema.json",
+            "KHR_materials_unlit": "glTF.KHR_materials_unlit.schema.json",
+            "KHR_materials_volume": "glTF.KHR_materials_volume.schema.json",
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "mesh": {
+        "title": "Mesh Extensions",
+        "extensions": {
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "mesh.primitive": {
+        "title": "Mesh Primitive Extensions",
+        "extensions": {
+            "KHR_draco_mesh_compression": "mesh.primitive.KHR_draco_mesh_compression.schema.json",
+            "KHR_materials_variants": "mesh.primitive.KHR_materials_variants.schema.json"
+        }
+    },
+    "node": {
+        "title": "Node Extensions",
+        "extensions": {
+            "KHR_lights_punctual": "node.KHR_lights_punctual.schema.json",
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json",
+            "EXT_mesh_gpu_instancing": "glTF.EXT_mesh_gpu_instancing.schema.json",
+            "AGI_articulations": "node.AGI_articulations.schema.json",
+            "AGI_stk_metadata": "node.AGI_stk_metadata.schema.json"
+        }
+    },
+    "scene": {
+        "title": "Scene Extensions",
+        "extensions": {
+            "EXT_lights_image_based": "scene.EXT_lights_image_based.schema.json",
+            "KHR_xmp": "node.KHR_xmp.schema.json",
+            "KHR_xmp_json_ld": "KHR_xmp_json_ld.schema.json"
+        }
+    },
+    "texture": {
+        "title": "Texture Extensions",
+        "extensions": {
+            "KHR_texture_basisu": "texture.KHR_texture_basisu.schema.json",
+            "EXT_texture_webp": "glTF.EXT_texture_webp.schema.json"
+        }
+    },
+    "textureInfo": {
+        "title": "Texture Info Extensions",
+        "extensions": {
+            "KHR_texture_transform": "KHR_texture_transform.textureInfo.schema.json"
+        }
+    }
+}
