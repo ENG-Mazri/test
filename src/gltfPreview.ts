@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { ContextBase } from './contextBase';
-import { parseJsonMap, JsonMap } from './utilities';
-import { GLTF2 } from './GLTF2';
-import { TextEncoder } from 'util';
 
 export interface GltfPreviewPanel extends vscode.WebviewPanel {
     readonly textEditor: vscode.TextEditor;
@@ -15,7 +12,7 @@ interface GltfPreviewPanelInfo extends GltfPreviewPanel {
     textEditor: vscode.TextEditor;
     ready: boolean;
 
-    _jsonMap: { data: GLTF2.GLTF, pointers: any };
+    _jsonMap: { data: any, pointers: any };
     _defaultBabylonReflection: string;
     _defaultFilamentReflection: string;
     _defaultThreeReflection: string;
@@ -36,8 +33,8 @@ export class GltfPreview extends ContextBase {
     constructor(context: vscode.ExtensionContext) {
         super(context);
 
-        this._mainHtml = fs.readFileSync(this._context.asAbsolutePath('pages/previewModel.html'), 'utf-8');
-        this._threeHtml = encodeURI(fs.readFileSync(this._context.asAbsolutePath('pages/threeView.html'), 'utf-8'));
+        // this._mainHtml = fs.readFileSync(this._context.asAbsolutePath('pages/previewModel.html'), 'utf-8');
+        // this._threeHtml = encodeURI(fs.readFileSync(this._context.asAbsolutePath('pages/threeView.html'), 'utf-8'));
     }
 
     private asExtensionUriString(panel: GltfPreviewPanel, s: string): string {
@@ -48,8 +45,8 @@ export class GltfPreview extends ContextBase {
         return panel.webview.asWebviewUri(vscode.Uri.file(s)).toString();
     }
 
-    public openPanel(gltfEditor: vscode.TextEditor): void {
-        const ifcFilePath = gltfEditor.document.fileName;
+    public openPanel(ifcEditor: vscode.TextEditor): void {
+        const ifcFilePath = ifcEditor.document.fileName;
 
         let panel = this._panels[ifcFilePath];
         if (!panel) {
@@ -59,23 +56,15 @@ export class GltfPreview extends ContextBase {
                 vscode.Uri.file(path.join(this._context.extensionPath, 'resources'))
             ];
 
-            const defaultBabylonReflection = this.getConfigResourceUrl('glTF.Babylon', 'environment', localResourceRoots);
-            const defaultFilamentReflection = this.getConfigResourceUrl('glTF.Filament', 'environment', localResourceRoots);
-            const defaultThreeReflection = this.getConfigResourceUrl('glTF.Three', 'environment', localResourceRoots);
-
-            panel = vscode.window.createWebviewPanel('gltf.preview', 'glTF Preview', vscode.ViewColumn.Two, {
+            panel = vscode.window.createWebviewPanel('ifc.preview', 'IFC Preview', vscode.ViewColumn.Two, {
                 enableScripts: true,
                 retainContextWhenHidden: true,
-                localResourceRoots: localResourceRoots,
+                localResourceRoots
             }) as GltfPreviewPanelInfo;
-
-            panel._defaultBabylonReflection = defaultBabylonReflection;
-            panel._defaultFilamentReflection = defaultFilamentReflection;
-            panel._defaultThreeReflection = defaultThreeReflection;
 
             panel._watchers = [];
 
-            panel.textEditor = gltfEditor;
+            panel.textEditor = ifcEditor;
 
             panel.onDidDispose(() => {
                 this.unwatchFiles(this._panels[ifcFilePath]);
@@ -90,16 +79,10 @@ export class GltfPreview extends ContextBase {
             this._panels[ifcFilePath] = panel;
         }
 
-        const gltfContent = gltfEditor.document.getText();
-        // const file = new File([data], name, metadata);
-        // return URL.createObjectURL(file);
-        // TODO: USE TEXT EDITOR CONTENT
-        // const data = new Uint8Array(Buffer.from('Hello Node.js'));
-        fs.writeFileSync(this._context.asAbsolutePath('resources/assets/model.ifc'), gltfContent);
-        const dt = Buffer.from( gltfContent, 'utf-8');
-        dt.toString('base64');
-        const bu = new TextEncoder().encode( gltfContent ).buffer;
-        this.updatePanel(panel, ifcFilePath, gltfContent);
+        const ifcContent = ifcEditor.document.getText();
+        fs.writeFileSync(this._context.asAbsolutePath('resources/assets/model.ifc'), ifcContent);
+
+        this.updatePanel(panel, ifcFilePath, ifcContent);
         panel.reveal(vscode.ViewColumn.Two);
 
         this.setActivePanel(panel);
@@ -138,14 +121,14 @@ export class GltfPreview extends ContextBase {
 
     // TODO: use data
     private updatePanel(panel: GltfPreviewPanelInfo, ifcFilePath: string, gltfContent: any): void {
-        let map: JsonMap<GLTF2.GLTF>;
+        // let map: any;
         // try {
         //     map = parseJsonMap(gltfContent);
         // } catch (ex) {
         //     vscode.window.showErrorMessage('' + ex);
         //     map = { data: { asset: { version: '2.0' } }, pointers: {} };
         // }
-        panel._jsonMap = map;
+        // panel._jsonMap = map;
 
         const rootPath = this.asWebviewUriString(panel, path.dirname(ifcFilePath)) + '/';
         const ifcFileName = path.basename(ifcFilePath);

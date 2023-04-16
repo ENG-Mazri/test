@@ -1,16 +1,5 @@
 import * as vscode from 'vscode';
-import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
-import { DataUriTextDocumentContentProvider } from './dataUriTextDocumentContentProvider';
-import { ConvertGLBtoGltfLoadFirst, ConvertToGLB, getBuffer } from 'gltf-import-export';
-import { GltfActionProvider } from './gltfActionProvider';
-import * as GltfValidate from './validationProvider';
-import * as path from 'path';
-import * as Url from 'url';
-import * as fs from 'fs';
-import { getFromJsonPointer, guessMimeType, btoa, guessFileExtension, getAccessorData, AccessorTypeToNumComponents, parseJsonMap, truncateJsonPointer, JsonMap } from './utilities';
-import { GLTF2 } from './GLTF2';
 import { GltfWindow } from './gltfWindow';
-import { Insertables } from './editorUtilities';
 
 function configurationChanged(): void {
     const config = vscode.workspace.getConfiguration('glTF');

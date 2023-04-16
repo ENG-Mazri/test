@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 import { GltfPreview } from './gltfPreview';
-import { GltfInspectData } from './gltfInspectData';
-import { GltfOutline } from './gltfOutline';
 
 function isGltfFile(editor: vscode.TextEditor | undefined): boolean {
     return editor && editor.document.fileName.toLowerCase().endsWith('.gltf');
