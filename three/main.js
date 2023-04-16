@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { IFCLoader } from 'web-ifc-three/IFCLoader';
 
-console.log("IFC MODEL...");
 const scene = new THREE.Scene();
 
 //Object to store the size of the viewport
@@ -27,11 +26,30 @@ const lightColor = 0xffffff;
 const ambientLight = new THREE.AmbientLight(lightColor, 0.5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(lightColor, 1);
-directionalLight.position.set(0, 10, 0);
-directionalLight.target.position.set(-5, 0, 0);
-scene.add(directionalLight);
-scene.add(directionalLight.target);
+// const directionalLight = new THREE.DirectionalLight(lightColor, 1);
+// directionalLight.position.set(0, 10, 0);
+// directionalLight.target.position.set(-5, 0, 0);
+// scene.add(directionalLight);
+// scene.add(directionalLight.target);
+
+const light1 = new THREE.DirectionalLight(0xffffff, 0.5);
+light1.position.set(-30, 0, 10);
+light1.shadow.mapSize.width = 1024;
+light1.shadow.mapSize.height = 1024;
+
+const d = 10;
+light1.shadow.camera.left = -d;
+light1.shadow.camera.right = d;
+light1.shadow.camera.top = d;
+light1.shadow.camera.bottom = -d;
+light1.shadow.camera.far = 1000;
+
+const light2 = new THREE.DirectionalLight(0xffffff, 0.5);
+light2.color.setHSL(0.3, 1, 1);
+light2.position.set(30, 0, -10);
+
+scene.add(light1);
+scene.add(light2);
 
 //Sets up the renderer, fetching the canvas of the HTML
 const threeCanvas = document.getElementById("three-canvas");
@@ -57,32 +75,32 @@ scene.add(grid);
 
 //Creates the orbit controls (to navigate the scene)
 const controls = new OrbitControls(camera, threeCanvas);
-const color = new THREE.Color(0xff9900);
+// const color = new THREE.Color(0xff9900);
 
-const geometry = new THREE.BoxGeometry( 5, 5, 5);
-const boxMaterial = new THREE.MeshLambertMaterial({
-    color,
-  });
-const mesh = new THREE.Mesh( geometry, boxMaterial );
-scene.add(mesh);
+// const geometry = new THREE.BoxGeometry( 5, 5, 5);
+// const boxMaterial = new THREE.MeshLambertMaterial({
+//     color,
+//   });
+// const mesh = new THREE.Mesh( geometry, boxMaterial );
+// scene.add(mesh);
 
 //* IFC SETUP
 const ifcLoader = new IFCLoader();
+const path1 = 'https://file+.vscode-resource.vscode-cdn.net/d%3A/My%20Coding%20Camp/gltf-vscode/resources/assets/'; //TODO: get this absolute path and pass it down here
 
+ifcLoader.ifcManager.setWasmPath(path1);
 const ifcModels = [];
 
 const createFile = async (path, name, type) =>{
     let response = await fetch(path);
     let data = await response.blob();
-    let metadata = {
-        type: type
-    };
+    let metadata = { type };
     const file = new File([data], name, metadata);
     return URL.createObjectURL(file);
 };
 
-const loadModel = async()=>{
-    await createFile('../wasm/001.ifc', 'file.ifc', 'application/x-step')
+const loadModel = async () => {
+    await createFile( path1 + 'model.ifc', 'file.ifc', 'application/x-step')
     .then((file) => {
         ifcLoader.load(
         file,

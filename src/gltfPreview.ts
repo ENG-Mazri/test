@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { ContextBase } from './contextBase';
 import { parseJsonMap, JsonMap } from './utilities';
 import { GLTF2 } from './GLTF2';
+import { TextEncoder } from 'util';
 
 export interface GltfPreviewPanel extends vscode.WebviewPanel {
     readonly textEditor: vscode.TextEditor;
@@ -47,26 +48,14 @@ export class GltfPreview extends ContextBase {
         return panel.webview.asWebviewUri(vscode.Uri.file(s)).toString();
     }
 
-    // Instructions to open DevTools on the glTF preview window:
-    //
-    // 1. Open the glTF preview window.
-    //
-    // 2. Press F1 to open the command bar at the top of VSCode.
-    //
-    // 3. Type in and run the following command:
-    //    Developer: Open Webview Developer Tools
-    //
-    // 4. In the top of the Console tab of DevTools, click the pull-down
-    //    and change `top` to `active-frame (index.html)`.
-
     public openPanel(gltfEditor: vscode.TextEditor): void {
-        const gltfFilePath = gltfEditor.document.fileName;
+        const ifcFilePath = gltfEditor.document.fileName;
 
-        let panel = this._panels[gltfFilePath];
+        let panel = this._panels[ifcFilePath];
         if (!panel) {
             let localResourceRoots = [
                 vscode.Uri.file(this._context.extensionPath),
-                vscode.Uri.file(path.dirname(gltfFilePath)),
+                vscode.Uri.file(path.dirname(ifcFilePath)),
                 vscode.Uri.file(path.join(this._context.extensionPath, 'resources'))
             ];
 
@@ -89,8 +78,8 @@ export class GltfPreview extends ContextBase {
             panel.textEditor = gltfEditor;
 
             panel.onDidDispose(() => {
-                this.unwatchFiles(this._panels[gltfFilePath]);
-                delete this._panels[gltfFilePath];
+                this.unwatchFiles(this._panels[ifcFilePath]);
+                delete this._panels[ifcFilePath];
                 this.updateActivePanel();
             });
 
@@ -98,14 +87,19 @@ export class GltfPreview extends ContextBase {
                 this.updateActivePanel();
             });
 
-            this._panels[gltfFilePath] = panel;
+            this._panels[ifcFilePath] = panel;
         }
 
         const gltfContent = gltfEditor.document.getText();
+        // const file = new File([data], name, metadata);
+        // return URL.createObjectURL(file);
         // TODO: USE TEXT EDITOR CONTENT
         // const data = new Uint8Array(Buffer.from('Hello Node.js'));
-        // fs.writeFileSync('model.txt', data);
-        this.updatePanel(panel, gltfFilePath, gltfContent);
+        fs.writeFileSync(this._context.asAbsolutePath('resources/assets/model.ifc'), gltfContent);
+        const dt = Buffer.from( gltfContent, 'utf-8');
+        dt.toString('base64');
+        const bu = new TextEncoder().encode( gltfContent ).buffer;
+        this.updatePanel(panel, ifcFilePath, gltfContent);
         panel.reveal(vscode.ViewColumn.Two);
 
         this.setActivePanel(panel);
@@ -142,48 +136,45 @@ export class GltfPreview extends ContextBase {
         this.setActivePanel(activePanel);
     }
 
-    private updatePanel(panel: GltfPreviewPanelInfo, gltfFilePath: string, gltfContent: string): void {
+    // TODO: use data
+    private updatePanel(panel: GltfPreviewPanelInfo, ifcFilePath: string, gltfContent: any): void {
         let map: JsonMap<GLTF2.GLTF>;
-        try {
-            map = parseJsonMap(gltfContent);
-        } catch (ex) {
-            vscode.window.showErrorMessage('' + ex);
-            map = { data: { asset: { version: '2.0' } }, pointers: {} };
-        }
+        // try {
+        //     map = parseJsonMap(gltfContent);
+        // } catch (ex) {
+        //     vscode.window.showErrorMessage('' + ex);
+        //     map = { data: { asset: { version: '2.0' } }, pointers: {} };
+        // }
         panel._jsonMap = map;
 
-        const gltfRootPath = this.asWebviewUriString(panel, path.dirname(gltfFilePath)) + '/';
-        const gltfFileName = path.basename(gltfFilePath);
+        const rootPath = this.asWebviewUriString(panel, path.dirname(ifcFilePath)) + '/';
+        const ifcFileName = path.basename(ifcFilePath);
 
-        const gltf = map.data;
-        let gltfMajorVersion = 1;
-        if (gltf && gltf.asset && gltf.asset.version && gltf.asset.version[0] === '2') {
-            gltfMajorVersion = 2;
-        }
-
-        panel.title = `IFC Preview - ${gltfFileName}`;
+        panel.title = `IFC Preview - ${ifcFileName}`;
         const script = panel.webview.asWebviewUri(vscode.Uri.joinPath(this._context.extensionUri, 'resources', 'main.js'));
         const css = panel.webview.asWebviewUri(vscode.Uri.joinPath(this._context.extensionUri, 'resources', 'style.css'));
-        panel.webview.html = this.getWebviewContent(' Test ', css, script);
-        this.watchFiles(panel); // watches changes after save in gltf file
+
+        panel.webview.html = this.getWebviewContent(css, script);
+        this.watchFiles(panel);
     }
 
-    private getWebviewContent(x: string, stylePath: vscode.Uri, scriptPath: vscode.Uri) {
+    private getWebviewContent( stylePath: vscode.Uri, scriptPath: vscode.Uri ){
         return `<!DOCTYPE html>
-                    <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <link rel="stylesheet" href="${stylePath}" />
-                            <title>IFC VIEWER</title>
-                        </head>
-                        <body>
-                            <div class="canvas">
-                                <canvas id="three-canvas"></canvas>
-                            </div>
-                            <script src="${scriptPath}" type="module"></script>
-                        </body>
-                    </html>`;
+                <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <link rel="stylesheet" href="${stylePath}" />
+                        <title>IFC VIEWER</title>
+                    </head>
+                    <body>
+                        <div class="canvas">
+                            <canvas id="three-canvas"></canvas>
+                        </div>
+                        </script>
+                        <script src="${scriptPath}" type="module"></script>
+                    </body>
+                </html>`;
     }
 
     private watchFiles(panel: GltfPreviewPanelInfo): void {
@@ -192,7 +183,7 @@ export class GltfPreview extends ContextBase {
         const document = panel.textEditor.document;
         const documentFilePath = document.fileName;
         panel._watchers.push(fs.watch(documentFilePath, () => {
-            this.updatePanel(panel, documentFilePath, document.getText());
+            this.updatePanel(panel, documentFilePath, document.uri);
         }));
 
         const documentDirectoryPath = path.dirname(documentFilePath);
